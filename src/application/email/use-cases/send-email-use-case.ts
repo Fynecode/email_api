@@ -33,7 +33,7 @@ export class SendEmail {
             from,
             to,
             request.body,
-            request.subject,
+            request.subject ?? "New Email",
             attachments
         );
 
