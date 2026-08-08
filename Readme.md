@@ -1,4 +1,5 @@
 # Email API
+[email-api](https://stansia-email-api.onrender.com)
 
 A production-ready, type-safe email service built with **TypeScript, Express, and Domain-Driven Design (DDD)**. Supports multiple email providers with a clean, extensible architecture.
 
