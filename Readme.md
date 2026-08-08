@@ -408,4 +408,4 @@ Questions? Open an issue on GitHub or reach out to the maintainer.
 
 **Built with ❤️ using TypeScript + Express + DDD**  
 **Perfect for learning backend development and clean architecture**  
-**Last Updated:** 2025
+**Last Updated:** 2026
