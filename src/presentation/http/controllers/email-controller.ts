@@ -20,7 +20,9 @@ export class EmailController {
 
         try {
 
-            const files = ((req.files as Express.Multer.File[]) ?? []).map(
+            const uploadedFiles = req.files as Express.Multer.File[] | undefined;
+
+            const attachments = (uploadedFiles ?? []).map(
                 file =>
                     new Attachment(
                         file.originalname,
@@ -31,7 +33,7 @@ export class EmailController {
 
             const request: SendEmailRequest = {
                 ...req.body,
-                attachments: files
+                attachments: attachments
             };
 
             const result = await this.sendEmail.execute(request);

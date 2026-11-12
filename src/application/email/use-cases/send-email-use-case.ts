@@ -32,8 +32,9 @@ export class SendEmail {
         const email = new Email(
             from,
             to,
-            request.body,
             request.subject ?? "New Email",
+            request.body ?? null,
+            request.html ?? null,
             attachments
         );
 

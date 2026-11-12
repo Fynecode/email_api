@@ -16,7 +16,7 @@ export function createEmailRoutes(
 
 
     router.post(
-        "/email",
+        ["/email", "/email/send", "/send"],
 
         apiKeyMiddleware,
 

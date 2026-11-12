@@ -17,8 +17,8 @@ export class ResendEmailSender implements EmailSender {
     const payload: CreateEmailOptions = {
         from: email.from.getValue(),
         to: email.to.getValue(),
-         subject: email.subject,
-        html: email.body,
+        subject: email.subject,
+        html: email.html,
         text: email.body
     };
 

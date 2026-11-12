@@ -8,7 +8,9 @@ export interface SendEmailRequest {
 
     subject?: string;
 
-    body: string;
+    body?: string | null;
+    
+    html?: string | null;
 
     attachments?: AttachmentDTO[];
 

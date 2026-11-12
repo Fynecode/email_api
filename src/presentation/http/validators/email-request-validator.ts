@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-
 export const sendEmailSchema = z.object({
 
     from: z.string()
@@ -13,9 +12,18 @@ export const sendEmailSchema = z.object({
         .optional(),
 
     body: z.string()
-        .min(1, "Email body is required")
+        .optional(),
 
-});
+    html: z.string()
+        .optional()
+
+}).refine(
+    data => Boolean(data.body?.trim() || data.html?.trim()),
+    {
+        message: "Either body or html must be provided.",
+        path: ["body"]
+    }
+);
 
 
 export type SendEmailRequestSchema =
