@@ -34,11 +34,11 @@ describe("Email Entity", () => {
             to,
             subject,
             "Hello, this is a test.",
-            undefined
+            null
         );
 
         expect(email.body).toBe("Hello, this is a test.");
-        expect(email.html).toBeUndefined();
+        expect(email.html).toBeNull();
 
     });
 
@@ -49,11 +49,11 @@ describe("Email Entity", () => {
             from,
             to,
             subject,
-            undefined,
+            null,
             "<h1>Hello, this is a test.</h1>"
         );
 
-        expect(email.body).toBeUndefined();
+        expect(email.body).toBeNull();
         expect(email.html).toBe("<h1>Hello, this is a test.</h1>");
 
     });
@@ -66,8 +66,8 @@ describe("Email Entity", () => {
                 from,
                 to,
                 subject,
-                undefined,
-                undefined
+                null,
+                null
             );
         }).toThrow(InvalidEmailContentError);
 
