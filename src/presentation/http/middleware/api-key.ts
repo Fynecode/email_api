@@ -1,14 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { ApplicationError } from "../../../application/email/errors/application-error.js";
+import { HttpError } from "../errors/http-error.js";
 
-
-class UnauthorizedApiKeyError extends ApplicationError {
-
+class UnauthorizedApiKeyError extends HttpError {
     constructor() {
-        super("Invalid API key.");
+        super("Invalid API key.", 401);
     }
-
 }
 
 
