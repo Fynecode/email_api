@@ -8,8 +8,8 @@ export class Email {
         public readonly from: EmailAddress,
         public readonly to: EmailAddress,
         public readonly subject: string,
-        public readonly body: string,
-        public readonly html: string,
+        public readonly body: string | null,
+        public readonly html: string | null,
         public readonly attachments: Attachment[] = []
     ) {
         this.validateContent();
