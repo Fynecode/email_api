@@ -1,10 +1,8 @@
-
 import { describe, it, expect } from "vitest";
 
 import { Email } from "../../../../src/domain/email/entities/email.js";
 import { EmailAddress } from "../../../../src/domain/email/value-objects/email-address.js";
 import { InvalidEmailContentError } from "../../../../src/domain/email/errors/invalid-email-content-error.js";
-
 
 describe("Email Entity", () => {
 
