@@ -11,7 +11,10 @@ vi.mock("../../../../src/infrastructure/email/resend/email-sender.js", () => ({
     }
 }));
 
-import app from "../../../../src/app.js";
+import {createApp} from "../../../../src/app.js";
+import type { EmailSender } from "../../../../src/domain/email/repositories/email-sender.js";
+
+const app = createApp({ send: sendMock } as unknown as EmailSender);
 
 describe("Email HTTP routes", () => {
     beforeEach(() => {
