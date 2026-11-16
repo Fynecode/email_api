@@ -1,412 +1,336 @@
 # Email API
-[email-api](https://stansia-email-api.onrender.com)
 
-A production-ready, type-safe email service built with **TypeScript, Express, and Domain-Driven Design (DDD)**. Supports multiple email providers with a clean, extensible architecture.
+[Live API](https://stansia-email-api.onrender.com) · [GitHub repository](https://github.com/Fynecode/email_api)
 
-## 🎯 Project Overview
+A reusable HTTP service for sending emails, built with **TypeScript, Express 5, and a layered architecture inspired by Domain-Driven Design (DDD)**.
 
-**Email API** is a reusable microservice for sending emails reliably. It demonstrates backend development best practices including clean architecture, API key authentication, rate limiting, and provider abstraction—making it easy to switch email providers.
+The project separates email business rules from the HTTP layer and the external email provider. The application depends on an `EmailSender` contract, while the current infrastructure implementation uses Resend.
 
-Perfect for junior developers learning backend development, microservice patterns, and enterprise-grade code organization.
+## Features
 
-### Key Features
+- **Email sending** through the Resend API.
+- **Provider abstraction** through the `EmailSender` interface, allowing another provider adapter to be added without coupling the application use case to that provider.
+- **API key authentication** using the `x-api-key` request header.
+- **Rate limiting** on email submission routes.
+- **Attachments** through multipart form uploads.
+- **Request validation** with Zod.
+- **Domain validation** for email addresses and email content.
+- **Layered architecture** separating domain, application, infrastructure, and presentation concerns.
+- **Automated tests** covering domain rules, the application use case, the Resend adapter, HTTP routes, and end-to-end request flows.
 
-- ✅ **Multiple Email Providers** - Pluggable provider architecture (Resend, SendGrid, etc.)
-- 🔑 **API Key Authentication** - Secure request validation
-- 🚦 **Rate Limiting** - Prevent abuse with intelligent throttling
-- 📨 **Email Attachments** - Support for file uploads and attachments
-- ✔️ **Request Validation** - Zod-powered schema validation
-- 🏗️ **DDD Architecture** - Clean separation of concerns
-- 🛡️ **Security** - Helmet for HTTP headers, CORS protection
-- 📝 **Type-Safe** - Full TypeScript coverage
-- 🚀 **Production Ready** - Error handling, logging, monitoring-ready
+## Tech stack
 
-## 🛠️ Tech Stack
+| Area | Technology |
+|---|---|
+| Runtime | Node.js |
+| Language | TypeScript |
+| HTTP framework | Express 5 |
+| Email provider | Resend |
+| Request validation | Zod |
+| File uploads | Multer |
+| Security headers | Helmet |
+| CORS | cors |
+| Rate limiting | express-rate-limit |
+| Testing | Vitest, Supertest |
+| Development | tsx |
 
-### Runtime & Framework
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web framework
-- **TypeScript** - Type-safe development
+## Getting started
 
-### Email & Communication
-- **Resend** - Modern email API (primary provider)
-- **SendGrid** - Alternative email provider support
-- **Multer** - File upload handling
+### Prerequisites
 
-### Validation & Security
-- **Zod** - Schema validation & parsing
-- **Helmet** - HTTP security headers
-- **CORS** - Cross-origin request control
-- **express-rate-limit** - Rate limiting middleware
+- Node.js
+- npm
 
-### Development
-- **tsx** - TypeScript execution for development
-- **Node.js types** - Complete TypeScript definitions
+You will also need a [Resend](https://resend.com) account and a verified sending domain or sender identity.
 
-## 📦 Prerequisites
-
-- **Node.js** (v18 or higher recommended)
-- **npm** or **pnpm**
-- **Resend Account** (free tier available at [resend.com](https://resend.com))
-- Basic understanding of REST APIs and TypeScript
-
-## 🚀 Getting Started
-
-### 1. Clone & Install
+### 1. Clone the repository
 
 ```bash
-# Clone repository
 git clone https://github.com/Fynecode/email_api.git
 cd email_api
-
-# Install dependencies
 npm install
-# or
-pnpm install
 ```
 
-### 2. Environment Configuration
+### 2. Configure environment variables
 
 Create a `.env` file in the project root:
 
 ```env
-# Server Configuration
 PORT=3000
-NODE_ENV=development
-
-# Email Provider
+API_KEY=replace_with_a_long_random_secret
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
-
-# API Security
-API_KEY=your_secure_api_key_here
-
-# CORS Configuration
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,https://yourdomain.com
-
-# Optional: SendGrid alternative
-SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-**Getting API Keys:**
-- **Resend**: Sign up at [resend.com](https://resend.com) → API Keys section
-- **SendGrid**: Sign up at [sendgrid.com](https://sendgrid.com) → API Keys
-- **API_KEY**: Generate a random secure key (use `openssl rand -hex 32`)
+| Variable | Required | Description |
+|---|---|---|
+| `PORT` | No | Port the HTTP server listens on. Defaults to `3000`. |
+| `API_KEY` | Yes | Secret key clients must provide in the `x-api-key` header. |
+| `RESEND_API_KEY` | Yes | API key used by the Resend SDK. |
 
-### 3. Development Server
+Generate a strong API key rather than using the example value. For example:
+
+```bash
+openssl rand -hex 32
+```
+
+The Resend client is initialized from `RESEND_API_KEY`. The application will fail to initialize if that variable is missing.
+
+### 3. Run the development server
 
 ```bash
 npm run dev
 ```
 
-Server runs on `http://localhost:3000`
+The server listens on `http://localhost:3000` by default.
 
-## 📚 Available Commands
+## Available scripts
 
 ```bash
-# Development
-npm run dev          # Start dev server with auto-reload (tsx watch)
-
-# Production
-npm run build        # Compile TypeScript to JavaScript
-npm start            # Run compiled JavaScript
-
-# Both commands
-npm run build && npm start
+npm run dev        # Start the server with tsx watch
+npm run build      # Compile the TypeScript source
+npm start          # Run the compiled server from dist/
+npm test           # Run the test suite once
+npm run test:watch # Run Vitest in watch mode
 ```
 
-## 📁 Project Structure
+## API reference
 
-```
-src/
-├── domain/                           # Business rules & entities
-│   ├── entities/
-│   │   └── Email.ts                 # Email entity definition
-│   ├── repositories/
-│   │   └── IEmailRepository.ts      # Email service interface
-│   ├── value-objects/
-│   │   └── EmailAddress.ts          # Email value object
-│   └── errors/
-│       └── DomainError.ts           # Domain-specific errors
-│
-├── application/                      # Use cases & application logic
-│   ├── use-cases/
-│   │   └── SendEmailUseCase.ts      # Core business logic
-│   ├── dtos/
-│   │   └── SendEmailDTO.ts          # Data transfer objects
-│   └── errors/
-│       └── ApplicationError.ts      # Application errors
-│
-├── presentation/                     # HTTP layer
-│   ├── controllers/
-│   │   └── EmailController.ts       # Request handlers
-│   ├── routes/
-│   │   └── emailRoutes.ts           # API routes
-│   └── middleware/
-│       ├── auth.ts                  # API key validation
-│       └── errorHandler.ts          # Error handling
-│
-├── infrastructure/                   # External services
-│   ├── providers/
-│   │   ├── ResendProvider.ts        # Resend integration
-│   │   └── SendGridProvider.ts      # SendGrid integration
-│   └── repositories/
-│       └── EmailRepository.ts       # Email repository impl
-│
-└── server.ts                         # Application entry point
-```
+### Send an email
 
-## 🏗️ Architecture: Domain-Driven Design
+**Method:** `POST`
 
-This project follows **DDD** with layered architecture:
+**Routes:**
 
-```
-Presentation Layer (Controllers/Routes/Middleware)
-       ↓
-Application Layer (Use Cases/DTOs)
-       ↓
-Domain Layer (Entities/Value Objects/Interfaces)
-       ↓
-Infrastructure Layer (Email Providers/Databases)
-```
+- `/api/email`
+- `/api/email/send`
+- `/api/send`
 
-### Key Concepts
+All three routes perform the same email submission operation.
 
-**Domain Layer**
-- Defines core business rules (what is an email?)
-- Interfaces (IEmailRepository) - contracts for implementations
-- Value Objects (EmailAddress) - immutable objects with behavior
+**Required headers:**
 
-**Application Layer**
-- Use Cases (SendEmailUseCase) - orchestrate business logic
-- DTOs (SendEmailDTO) - standardize data between layers
-- Application Errors - specific to use cases
-
-**Presentation Layer**
-- Controllers - handle HTTP requests
-- Routes - define API endpoints
-- Middleware - cross-cutting concerns (auth, error handling)
-
-**Infrastructure Layer**
-- Email Providers - actual implementation (Resend, SendGrid)
-- Repositories - implement domain interfaces
-
-### Why This Architecture?
-
-✨ **Testable** - Each layer can be tested independently  
-✨ **Maintainable** - Clear separation of concerns  
-✨ **Scalable** - Easy to add new features or providers  
-✨ **Professional** - Enterprise-grade code organization  
-
-## 🔌 API Endpoints
-
-### Send Email
-
-**POST** `/api/email/send`
-
-**Headers:**
-```
-Authorization: Bearer <API_KEY>
+```http
+x-api-key: YOUR_API_KEY
 Content-Type: application/json
 ```
 
-**Request Body:**
+For requests with attachments, use `multipart/form-data` instead of JSON and include the files under the `attachments` field.
+
+### JSON request
+
+```http
+POST /api/email/send
+x-api-key: YOUR_API_KEY
+Content-Type: application/json
+```
+
 ```json
 {
-  "to": "recipient@example.com",
   "from": "noreply@yourdomain.com",
-  "subject": "Welcome!",
-  "html": "<h1>Hello</h1><p>This is an email.</p>",
-  "text": "Hello, this is an email.",
-  "cc": ["cc@example.com"],
-  "bcc": ["bcc@example.com"],
-  "replyTo": "support@example.com"
+  "to": "recipient@example.com",
+  "subject": "Welcome",
+  "body": "Hello, welcome to our service.",
+  "html": "<h1>Welcome</h1><p>Thanks for joining us.</p>"
 }
 ```
 
-**Success Response (200):**
+| Field | Required | Description |
+|---|---|---|
+| `from` | Yes | Sender email address. |
+| `to` | Yes | Recipient email address. |
+| `subject` | No | Email subject. Defaults to `New Email` when omitted. |
+| `body` | One of body/html | Plain-text email content. |
+| `html` | One of body/html | HTML email content. |
+
+At least one of `body` or `html` must contain non-whitespace content. Both may be supplied to provide plain-text and HTML versions of the same email.
+
+### Attachments
+
+To send attachments, submit the request as `multipart/form-data`. Use the same fields described above and attach files using the field name `attachments`.
+
+Current upload limits:
+
+- Maximum of **5 files** per request.
+- Maximum file size of **10 MB per file**.
+
+The service currently uses Multer memory storage. Consider the memory implications of uploads when deploying or increasing request volume.
+
+### Successful response
+
+**Status:** `200 OK`
+
 ```json
 {
   "success": true,
-  "messageId": "re_123456789",
-  "timestamp": "2025-08-07T12:00:00Z"
+  "messageId": "re_123456789"
 }
 ```
 
-**Error Response (400/401/429/500):**
+The `messageId` is the identifier returned by the email provider. A successful response means the provider accepted the send request; it does not independently confirm delivery to the recipient's inbox.
+
+### Error responses
+
+Responses use a `success` and `message` structure. Validation errors also include an `errors` property with details from Zod.
+
+Example:
+
 ```json
 {
-  "error": "Invalid email address",
-  "statusCode": 400
+  "success": false,
+  "message": "Invalid request data.",
+  "errors": {}
 }
 ```
 
-### Health Check
+Common status codes include:
 
-**GET** `/api/health`
+| Status | Meaning |
+|---|---|
+| `400` | Invalid request data or invalid email/domain input. |
+| `401` | Missing or invalid API key. |
+| `429` | Email request rate limit exceeded. |
+| `500` | Unexpected server or email-sending failure. |
 
-**Response:**
-```json
-{
-  "status": "ok",
-  "version": "1.0.0",
-  "uptime": 3600
-}
+## Security and request handling
+
+- Requests to the email routes must include a valid `x-api-key` header.
+- The email routes are rate-limited to **50 requests per 15-minute window** using the current `express-rate-limit` configuration.
+- Helmet is applied to add HTTP security headers.
+- CORS middleware is enabled with its default configuration. An origin allowlist is not currently configured in the application.
+- Zod validates the request body before it reaches the controller.
+- Uploaded files are held in memory and limited by file count and per-file size.
+
+For a public production deployment, configure CORS with an explicit origin policy and consider a shared rate-limit store if the service runs across multiple instances. Keep API keys and provider credentials out of source control.
+
+## Architecture
+
+The codebase is organized into four main layers:
+
+```text
+src/
+├── domain/
+│   └── email/
+│       ├── entities/
+│       ├── errors/
+│       ├── repositories/
+│       └── value-objects/
+│
+├── application/
+│   └── email/
+│       ├── dto/
+│       ├── errors/
+│       └── use-cases/
+│
+├── infrastructure/
+│   └── email/
+│       ├── resend/
+│       └── resend-client.ts
+│
+├── presentation/
+│   └── http/
+│       ├── controllers/
+│       ├── errors/
+│       ├── middleware/
+│       ├── routes/
+│       └── validators/
+│
+├── app.ts
+└── server.ts
 ```
 
-## 🔐 Security Features
+### Layer responsibilities
 
-- **API Key Authentication** - Validates every request
-- **Rate Limiting** - Prevents abuse (configurable window)
-- **CORS** - Whitelist allowed origins
-- **Helmet** - Secure HTTP headers (XSS, CSRF protection)
-- **Input Validation** - Zod schemas for all inputs
-- **Error Messages** - No sensitive info in responses
-- **Environment Variables** - Never hardcode secrets
+**Domain**
 
-## 🧪 Testing
+Contains the core email model and rules, including the `Email` entity, `EmailAddress` and `Attachment` value objects, and domain errors. The `EmailSender` interface defines the contract required to send an email without tying the domain to a specific provider SDK.
 
-Add tests using your preferred framework (Jest, Vitest):
+**Application**
 
-```bash
-# Create test file
-src/application/use-cases/__tests__/SendEmailUseCase.test.ts
+Contains the `SendEmail` use case and its request/response DTOs. It coordinates the operation using the `EmailSender` abstraction.
 
-# Run tests
-npm run test
-```
+**Infrastructure**
 
-Example test:
+Contains external-service integrations. The current `ResendEmailSender` implements `EmailSender` and translates the domain email into a Resend API request.
+
+**Presentation**
+
+Contains the Express HTTP layer: routes, controller, request validation, API key middleware, rate limiting, upload handling, and HTTP error handling.
+
+### Dependency direction
+
+The application use case depends on the `EmailSender` contract rather than on Resend directly. The concrete Resend adapter is supplied when the application is created:
+
 ```typescript
-import { SendEmailUseCase } from '../SendEmailUseCase';
-import { MockEmailRepository } from './mocks/MockEmailRepository';
-
-describe('SendEmailUseCase', () => {
-  it('should send email successfully', async () => {
-    const repository = new MockEmailRepository();
-    const useCase = new SendEmailUseCase(repository);
-    
-    const result = await useCase.execute({
-      to: 'user@example.com',
-      subject: 'Test',
-      html: '<p>Test</p>'
-    });
-    
-    expect(result.success).toBe(true);
-  });
-});
+const emailSender = new ResendEmailSender();
+const app = createApp(emailSender);
 ```
 
-## 🚀 Deployment
+This keeps provider-specific code outside the application use case and makes it possible to substitute a test double when testing the application and HTTP layers.
 
-### Deploy to Vercel
+## Testing
+
+The project uses Vitest and Supertest.
+
+The test suite is organized by testing scope:
+
+```text
+tests/
+├── unit/
+│   ├── domain/
+│   └── application/
+├── integration/
+│   ├── infrastructure/
+│   └── presentation/
+└── e2e/
+```
+
+Run the full suite with:
 
 ```bash
-npm run build
-# Connect to Vercel and deploy
+npm test
 ```
 
-### Deploy to Railway/Render
+The tests cover domain validation, use-case behavior, the Resend adapter, HTTP request handling, authentication, attachments, and end-to-end email submission flows. External email-provider behavior is mocked in tests, so running the test suite does not require sending real emails.
+
+## Deployment
+
+The service can be deployed to a Node.js hosting platform that supports running a long-lived Express server.
+
+Typical build and start commands:
 
 ```bash
 npm run build
 npm start
 ```
 
-### Deploy to AWS Lambda (with serverless framework)
+Configure the following environment variables in the hosting platform:
 
-```bash
-npm install -g serverless
-serverless deploy
-```
+- `PORT` (if required by the platform)
+- `API_KEY`
+- `RESEND_API_KEY`
 
-### Docker
+Do not expose either secret in client-side code or commit them to the repository.
 
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY src ./src
-COPY tsconfig.json ./
-RUN npm run build
-CMD ["npm", "start"]
-```
+## Current scope and future work
 
-## 📊 Error Handling
+The current implementation sends email synchronously through Resend. It does not yet include a second provider implementation, automatic provider failover, a persistent queue, retry scheduling, delivery-status tracking, or a database-backed email history.
 
-The API uses consistent error responses:
+Potential next steps:
 
-| Status | Error | Meaning |
-|--------|-------|---------|
-| 400 | BadRequest | Invalid input |
-| 401 | Unauthorized | Missing/invalid API key |
-| 429 | TooManyRequests | Rate limit exceeded |
-| 500 | InternalServerError | Server error |
+- [ ] Add a second provider adapter.
+- [ ] Add structured logging and request correlation.
+- [ ] Improve attachment validation, including file-type and aggregate-size limits.
+- [ ] Add provider-aware retry handling and idempotency protections.
+- [ ] Add a persistent queue for asynchronous email processing.
+- [ ] Add delivery and bounce tracking through provider webhooks.
+- [ ] Add per-client API keys, quotas, and key rotation.
+- [ ] Add API documentation with an OpenAPI specification.
+- [ ] Add CI checks and performance/load testing.
 
-## 🔄 Adding New Email Providers
+## License
 
-The architecture makes it easy to add new providers:
-
-1. **Create Provider Class:**
-```typescript
-// src/infrastructure/providers/YourProvider.ts
-export class YourProvider implements IEmailProvider {
-  async send(email: Email): Promise<string> {
-    // Implementation
-  }
-}
-```
-
-2. **Update Repository:**
-```typescript
-// src/infrastructure/repositories/EmailRepository.ts
-constructor(provider: IEmailProvider) {
-  this.provider = provider;
-}
-```
-
-3. **That's it!** The rest of the code remains unchanged.
-
-## 🎓 Learning Outcomes
-
-This project teaches:
-- ✨ Backend development with Express.js
-- ✨ Domain-Driven Design principles
-- ✨ Layered architecture patterns
-- ✨ API design best practices
-- ✨ TypeScript for type safety
-- ✨ Authentication & authorization
-- ✨ Rate limiting & security
-- ✨ Schema validation with Zod
-- ✨ Microservice development
-- ✨ Scalable code organization
-
-## 🚀 Future Enhancements
-
-- [ ] Database persistence (MongoDB/PostgreSQL)
-- [ ] Email templates with variables
-- [ ] Webhook notifications
-- [ ] Email scheduling
-- [ ] Bounce/delivery tracking
-- [ ] Analytics dashboard
-- [ ] Retry logic for failed sends
-- [ ] Multi-language support
-- [ ] A/B testing framework
-
-## 🤝 Contributing
-
-Contributions welcome! Please follow the project's DDD structure and add tests for new features.
-
-## 📄 License
-
-MIT License - free to use for learning and commercial projects.
-
-## 📞 Support
-
-Questions? Open an issue on GitHub or reach out to the maintainer.
+The package metadata currently declares the project license as ISC. See the repository for the applicable license terms.
 
 ---
 
-**Built with ❤️ using TypeScript + Express + DDD**  
-**Perfect for learning backend development and clean architecture**  
-**Last Updated:** 2026
+Built with TypeScript, Express, and Resend.
